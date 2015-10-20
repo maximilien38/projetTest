@@ -81,7 +81,13 @@ public class TestExplosivesJUnit4 {
 		}  
 	}
 	
-	
-
-
+	@Test
+	public void  testFindBat() {
+		try{
+			e=new Explosives();
+			e.findBat("Prod_Alumette");
+		} 	catch(JmlAssertionError e){
+				handleJMLAssertionError(e);		
+		}  
+	}
 }
