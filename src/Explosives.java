@@ -10,42 +10,42 @@ public class Explosives{
     public int nb_assign = 0;
     public String [][] assign = new String[30][2];
  
- 	//le nombre de rêgle d'incompatibilité doit être comprit entre 0 et 49 pour ne pas dépasser du tableau
+ 	/** Le nombre de rêgles d'incompatibilité doit être compris entre 0 et 49 pour ne pas dépasser du tableau */
     /*@ public invariant // Prop 1
       @ (0 <= nb_inc && nb_inc < 50);
       @*/
       
-    //le nombre d'assignement doit être comprit entre 0 et 29 pour ne pas dépasser du tableau
+    /** Le nombre d'assignement doit être compris entre 0 et 29 pour ne pas dépasser du tableau */
     /*@ public invariant // Prop 2
       @ (0 <= nb_assign && nb_assign < 30);
       @*/
       
-    //Chaques icompatibilité doit bien être entre deux produits. (c'est celui qui est en 0 qui est incompatible avec celui qui est en 1)
+    /** Chaque icompatibilité doit être entre deux produits. (c'est celui qui est en 0 qui est incompatible avec celui qui est en 1) */
     /*@ public invariant // Prop 3
       @ (\forall int i; 0 <= i && i < nb_inc; 
       @         incomp[i][0].startsWith("Prod") && incomp[i][1].startsWith("Prod"));
       @*/
       
-    //chaques assignement doit être entre un batiment et un produit (d'abord le batiment puis le produit)
+    /** Chaque assignement doit être entre un batiment et un produit (d'abord le batiment puis le produit) */
     /*@ public invariant // Prop 4
       @ (\forall int i; 0 <= i && i < nb_assign; 
       @         assign[i][0].startsWith("Bat") && assign[i][1].startsWith("Prod"));
       @*/
       
-    //Un porduit ne peut pas être incompatible avec lui même
+    /** Un porduit ne peut pas être incompatible avec lui-même */
     /*@ public invariant // Prop 5
       @ (\forall int i; 0 <= i && i < nb_inc; !(incomp[i][0]).equals(incomp[i][1]));
       @*/
       
-    //Si un produit est incompatible avec un autre, il doit figurer dans le tableau dans les deux sens.
+    /** La relation d'incompatibilité est réflexive. */
     /*@ public invariant // Prop 6
       @ (\forall int i; 0 <= i && i < nb_inc; 
       @        (\exists int j; 0 <= j && j < nb_inc; 
       @           (incomp[i][0]).equals(incomp[j][1]) 
       @              && (incomp[j][0]).equals(incomp[i][1]))); 
       @*/
-      
-    //Si deux produits sont dans le même batiment il ne faut pas qu'ils soit dans le tableau des incompatibles
+
+    /** Deux produits incompatibles ne peuvent être placés dans un même bâtiment. */
     /*@ public invariant // Prop 7
       @ (\forall int i; 0 <= i &&  i < nb_assign; 
       @     (\forall int j; 0 <= j && j < nb_assign; 
@@ -55,7 +55,19 @@ public class Explosives{
       @              || (!(assign[j][1]).equals(incomp[k][1])))));
       @*/
 
-
+    /** Précondition : prod1 et prod2 doivent être différents */
+    /** Précondition : prod1 et prod2 sont 2 produits */
+    /** Précondition : Deux produits incompatibles ne peuvent être placés dans un même bâtiment */
+    /* @requires this.nb_inc < 49;
+     * @requires !(prod1.equals(prod2));
+     * @requires prod1.startsWith("Prod") && prod2.startsWith("Prod");
+     * @requires       @ (\forall int i; 0 <= i &&  i < nb_assign; 
+      @     (\forall int j; 0 <= j && j < nb_assign; 
+      @        (i != j && (assign[i][0]).equals(assign [j][0])) ==>
+      @        (\forall int k; 0 <= k && k < nb_inc;
+      @           (!(assign[i][1]).equals(incomp[k][0])) 
+      @              || (!(assign[j][1]).equals(incomp[k][1])))));
+      @*/
     public void add_incomp(String prod1, String prod2){
 		incomp[nb_inc][0] = prod1;
 		incomp[nb_inc][1] = prod2;
