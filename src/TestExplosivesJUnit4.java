@@ -62,7 +62,7 @@ public class TestExplosivesJUnit4 {
 	public void testProp1(){
 		try{
 			e = new Explosives();
-			for(int i = 0; i < 60; i++){
+			for(int i = 0; i < 30; i++){
 				e.add_incomp("Prod_0_"+i, "Prod_1_"+i);
 			}
 		}catch(JmlAssertionError e){
@@ -104,16 +104,6 @@ public class TestExplosivesJUnit4 {
 	}
 	
 	@Test
-	public void  testFindBat() {
-		try{
-			e=new Explosives();
-			e.findBat("Prod_Alumette");
-		} 	catch(JmlAssertionError e){
-				handleJMLAssertionError(e);		
-		}
-	}
-	
-	@Test
 	public void testProp5(){
 		try{
 			e = new Explosives();
@@ -132,6 +122,28 @@ public class TestExplosivesJUnit4 {
 			e.add_assign("Bat1", "Produit2");
 		}catch(JmlAssertionError e){
 			handleJMLAssertionError(e);
+		}
+	}
+	
+	@Test
+	public void testIncompApresAjout(){
+		try{
+			e = new Explosives();
+			e.add_assign("Bat1", "Produit1");
+			e.add_assign("Bat1", "Produit2");
+			e.add_incomp("Produit1", "Produit2");
+		}catch(JmlAssertionError e){
+			handleJMLAssertionError(e);
+		}
+	}
+
+	@Test
+	public void  testFindBat() {
+		try{
+			e=new Explosives();
+			e.findBat("Prod_Alumette");
+		} 	catch(JmlAssertionError e){
+				handleJMLAssertionError(e);		
 		}
 	}
 }

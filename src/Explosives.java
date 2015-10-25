@@ -57,17 +57,18 @@ public class Explosives{
 
     /** Précondition : prod1 et prod2 doivent être différents */
     /** Précondition : prod1 et prod2 sont 2 produits */
-    /** Précondition : Deux produits incompatibles ne peuvent être placés dans un même bâtiment */
-    /* @requires this.nb_inc < 49;
-     * @requires !(prod1.equals(prod2));
-     * @requires prod1.startsWith("Prod") && prod2.startsWith("Prod");
-     * @requires       @ (\forall int i; 0 <= i &&  i < nb_assign; 
-      @     (\forall int j; 0 <= j && j < nb_assign; 
-      @        (i != j && (assign[i][0]).equals(assign [j][0])) ==>
-      @        (\forall int k; 0 <= k && k < nb_inc;
-      @           (!(assign[i][1]).equals(incomp[k][0])) 
-      @              || (!(assign[j][1]).equals(incomp[k][1])))));
-      @*/
+    //@requires nb_inc >= 0;
+    //@requires nb_inc < 48;
+    //@requires !(prod1.equals(prod2));
+    //@requires prod1.startsWith("Prod") && prod2.startsWith("Prod");
+    /** Précondition : Deux produits déclarés incompatibles ne peuvent pas avoir été placés dans un même bâtiment auparavant */
+    /*@requires 
+      @	(\forall int i; 0 <= i && i < nb_assign;
+      @		(\forall int j; 0 <= j && j < nb_assign;
+      @			(i != j && (assign[i][0]).equals(assign[j][0])) && (!(assign[i][1].equals(assign[j][1]))) ==>
+      @				(!((assign[i][1].equals(prod1) || assign[i][1].equals(prod2)) &&
+      @				   (assign[j][1].equals(prod1) || assign[j][1].equals(prod2))))));
+     */
     public void add_incomp(String prod1, String prod2){
 		incomp[nb_inc][0] = prod1;
 		incomp[nb_inc][1] = prod2;
