@@ -1,0 +1,169 @@
+\documentclass{report}[12pt]
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{url}
+\usepackage{color, soul}
+\usepackage{multicol}
+\usepackage{verbatim}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{ulem}
+\usepackage{geometry}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{lscape}
+\usepackage{tipa}
+\usepackage{listings}
+\lstset{frame=tb,
+ language=Java,
+ aboveskip=3mm,
+ belowskip=3mm,
+ showstringspaces=false,
+ columns=flexible,
+ basicstyle={\small\ttfamily},
+ numbers=none,
+ numberstyle=\tiny,
+ keywordstyle=\color{blue},
+ breaklines=true,
+ breakatwhitespace=true,
+ tabsize=3
+}
+
+\title{JML - TD 4}
+\author{Maximilien \bsc{Faure} - Alexandre \bsc{Sahuc}}
+
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\Roman{section}.\Roman{subsection}}
+
+\begin{document}
+
+\maketitle
+
+\section{Préconditions et invariants}
+\subsection{Invariants}
+\paragraph{Invariant 1}
+\begin{lstlisting}
+(0 <= nb_inc && nb_inc < 50);
+\end{lstlisting}
+Le nombre de règles d'incompatibilité doit être compris entre 0 et 49 pour ne pas dépasser du tableau.
+
+\paragraph{Invariant 2}
+\begin{lstlisting}
+(0 <= nb_assign && nb_assign < 30);
+\end{lstlisting}
+Le nombre d'assignement doit être compris entre 0 et 29 pour ne pas dépasser du tableau.
+
+\paragraph{Invariant 3}
+\begin{lstlisting}
+(\forall int i; 0 <= i && i < nb_inc; 
+	incomp[i][0].startsWith("Prod") && incomp[i][1].startsWith("Prod"));
+\end{lstlisting}
+Une incompatibilité associe deux produits.
+
+\paragraph{Invariant 4}
+\begin{lstlisting}
+(\forall int i; 0 <= i && i < nb_assign; 
+	assign[i][0].startsWith("Bat") && assign[i][1].startsWith("Prod"));
+\end{lstlisting}
+Chaque assignement doit être entre un bâtiment et un produit (d'abord le bâtiment puis le produit).
+
+\paragraph{Invariant 5}
+\begin{lstlisting}
+(\forall int i; 0 <= i && i < nb_inc; !(incomp[i][0]).equals(incomp[i][1]));
+\end{lstlisting}
+Un produit ne peut pas être incompatible avec lui-même.
+
+\paragraph{Invariant 6}
+\begin{lstlisting}
+(\forall int i; 0 <= i && i < nb_inc; 
+	(\exists int j; 0 <= j && j < nb_inc; 
+		(incomp[i][0]).equals(incomp[j][1]) 
+			&& (incomp[j][0]).equals(incomp[i][1]))); 
+\end{lstlisting}
+La relation d'incompatibilité est réflexive.
+
+\paragraph{Invariant 7}
+\begin{lstlisting}
+(\forall int i; 0 <= i &&  i < nb_assign; 
+	(\forall int j; 0 <= j && j < nb_assign; 
+		(i != j && (assign[i][0]).equals(assign [j][0])) ==>
+		(\forall int k; 0 <= k && k < nb_inc;
+			(!(assign[i][1]).equals(incomp[k][0])) 
+				|| (!(assign[j][1]).equals(incomp[k][1])))));
+\end{lstlisting}
+Deux produits incompatibles ne peuvent être placés dans un même bâtiment.
+
+\subsection{Préconditions}
+\paragraph{add\_incomp}
+\begin{lstlisting}
+requires nb_inc >= 0; 
+requires nb_inc < 49;
+\end
+Le nombre d'incompatibilités déclarées avant l'appel à la fonction doit être compris entre 0 et 48 (respect de l'invariant 1)
+\begin{lstlisting}
+requires !(prod1.equals(prod2));
+\end{lstlisting}
+Les deux produits déclarés comme incompatibles doivent être différents (par respect de l'invariant 5).
+\begin{lstlisting}
+requires prod1.startsWith("Prod") && prod2.startsWith("Prod")
+\end{lstlisting}
+Les deux arguments passées en paramètre doivent représenter deux produits (respect de l'invariant 3).
+\begin{lstlisting}
+requires 
+	(\forall int i; 0 <= i && i < nb_assign;
+		(\forall int j; 0 <= j && j < nb_assign;
+      		(i != j && (assign[i][0]).equals(assign[j][0])) && (!(assign[i][1].equals(assign[j][1]))) ==>
+      			(!((assign[i][1].equals(prod1) || assign[i][1].equals(prod2)) &&
+      			   (assign[j][1].equals(prod1) || assign[j][1].equals(prod2))))));
+\end{lstlisting}
+Deux produits déclarés incompatibles ne peuvent pas avoir été placés dans un même bâtiment auparavant (invariant 7).
+
+\paragraph{add\_assign}
+\begin{lstlisting}
+requires nb_assign < 29;
+requires nb_assign >= 0;
+\end{lstlisting}
+Le nombre d'assignments déclarés avant l'appel à la fonction doit être compris entre 0 et 28 (respect de l'invariant 2).
+\begin{lstlisting}
+requires bat.startsWith("Bat");
+requires prod.startsWith("Prod");
+\end{lstlisting}
+Les paramètres doivent être un bâtiment et un produit (respect de l'invariant 4).
+\begin{lstlisting}
+requires
+    (\forall int i; 0 <= i &&  i < nb_assign; 
+        (bat.equals(assign [i][0])) ==> 
+			(\forall int k; 0 <= k && k < nb_inc;
+            	(!prod.equals(incomp[k][0])) || !(assign[i][1]).equals(incomp[k][1])));
+  
+\end{lstlisting}
+Le produit \verb-prod- placé dans le bâtiment \verb-bat- ne peut pas être incompatible avec d'autres produits de ce bâtiment (respect de l'invariant 7).
+
+\paragraph{compatible}
+\begin{lstlisting}
+requires prod1.stratsWith("Prod");
+requires prod2.startsWith("Prod");
+\end{lstlisting}
+Les deux arguments doivents être des produits.
+
+\begin{lstlisting}
+ensures \result == true ==> 
+	(\forall int i; 0 <= i && i < nb_inc;
+		((!incomp[i][0].equals(prod1))  || (!incomp[i][1].equals(prod2))));
+\end{lstlisting}
+La fonction renvoie \verb-true- si les deux produits ne sont pas incompatibles.
+
+\paragraph{findBat}
+Pour la fonction \verb-findBat-, nous avons décidé de renvoyer le bâtiment où est stocké le produit si ce dernier a déjà été stocké.
+Sinon, nous renvoyons le premier bâtiment rencontré où le produit peut être stocké.
+Si, dans tous les bâtiments où un produit à déjà été assigné, il n'y a aucun bâtiment qui peut contenir le produit passé en paramètre, la fonction renvoie \verb-null-.
+\begin{lstlisting}
+ensures \result != null <==>
+			(\forall int i; 0 <= i && i < nb_assign;
+				(!assign[i][0].equals(\result)) || compatible(assign[i][1], prod));
+\end{lstlisting}
+Si le résultat est différent de null (donc un bâtiement a été trouvé), le produit n'est pas incompatible avec les autres produits de ce bâtiment.
+\end{document}

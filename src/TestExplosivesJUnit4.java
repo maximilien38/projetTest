@@ -138,9 +138,10 @@ public class TestExplosivesJUnit4 {
 	}
 
 	@Test
-	public void  testFindBat() {
+	public void  testFindBat0() {
 		try{
 			e=new Explosives();
+			e.add_assign("Bat_0", "Prod_Alumette");
 			e.findBat("Prod_Alumette");
 		} 	catch(JmlAssertionError e){
 				handleJMLAssertionError(e);		
