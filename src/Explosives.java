@@ -96,64 +96,70 @@ public class Explosives{
     }
     
     
-    //@requires prod.startsWith("Prod");
-    //@ ensures \old(contains(prod)) ==> \result == null;
-	//@ ensures \old(!contains(prod))==> \result.startsWith("Bat");
-    /*@ensures  \result != null ==>
-    @  				(\forall int i; 0 <= i && i < nb_assign; 
-    @					((assign[i][0].equals(\result) ==> compatible(prod,assign[i][1]) )));
-    @*/
-    public String findBat(String prod)
-    {
-    	Boolean find = false;
-    	String batReturn = null;
-    	HashMap<String,Boolean> listBatPossible= new HashMap<String,Boolean>();
-    	for( int i = 0; i < nb_assign; i++)
-    	{
-    		Boolean b = listBatPossible.get(assign[i][0]);
-    		if(b == null)
-    		{
-    			listBatPossible.put(assign[i][0],compatible(assign[i][1],prod));
-    		}
-    		else
-    		{
-    			b = listBatPossible.get(assign[i][0]);
-    			if(b)
-    				listBatPossible.put(assign[i][0],compatible(assign[i][1],prod));   			
-    		}
-    	}
+	/*@ensures \result != null <==>
+		@ (\forall int i; 0 <= i && i < nb_assign;
+		@	(!assign[i][0].equals(\result)) || compatible(assign[i][1], prod));
+		@
+	*/
+    /** Si le produit est déjà stocké dans un bâtiment, on renvoie ce bâtiment
+     * Sinon, on renvoie le premier bâtiment où le produit peut être stocké
+     * Si le produit ne peut être stocké dans aucun bâtiment, on renvoie null
+     */
+    public String findBat(String prod){
+    	for(int i = 0; i < nb_assign; i++){
+		if(assign[i][1].equals(prod)){
+			return assign[i][0];
+		}
+	}
     	
-    	Set<String> keys = listBatPossible.keySet();
-    	Iterator<String> it = keys.iterator();
-    	while( it.hasNext() && !find)
-    	{
-    		batReturn = it.next();
-    		find = listBatPossible.get(batReturn);
+    	for(int i = 0; i < nb_assign; i++){
+    		String b = null;
+    		boolean incomp = false;
+    		if(compatible(assign[i][1], prod)){
+    			b = assign[i][0]; 
+    			for(int j = 0; j < nb_assign; j++){
+    				if(assign[j][0].equals(b)){
+    					if(compatible(assign[j][1], prod) == false){
+    						incomp = true;
+    						break;
+    					}
+    				}
+    			}
+    			if(incomp == false){
+    				return b;
+    			}
+    		}
     	}
-    	if(find)
-    		return batReturn;
-    	else
-    		return "Bat";
+    	return null;
     }
     
-    public boolean compatible(String prod1, String prod2)
-    {
-    	int i = 0;
-    	boolean find = false;
-    	while(i < nb_inc && !find)
-    	{
-    		if(incomp[i][0].equals(prod1) && incomp[i][1].equals(prod2))
-    			find = true;
-    		i++;
+    //@requires prod1.startsWith("Prod");
+    //@requires prod2.startsWith("Prod");
+    /*@ensures \result == true ==>
+    	@	(\forall int i; 0 <= i && i < nb_inc;
+    	@		((!incomp[i][0].equals(prod1)) || (!incomp[i][1].equals(prod2))));
+    	@*/
+    public boolean compatible(String prod1, String prod2){
+    	for(int i = 0; i < nb_inc; i++){
+    		if(incomp[i][0].equals(prod1) && incomp[i][1].equals(prod2)){
+    			return false;
+    		}
     	}
-    	return find;
+    	return true;
     }
     
-    public boolean contains(String prod)
-    {
-    	int i = 0;
-    	while(i < nb_inc && assign[i][1].equals(prod) ){i++;}
-    	return i == nb_inc;
+    /**
+     * Retrouve le bâtiment qui contient prod.
+     * Renvoie null si prod n'est pas stocké dans un bâtiment connu.
+	* Grâce à la puissance de JML qui ne gère pas les chaînes null, la fonction renvoie en fait une chaîne vide.
+     */
+    public /*@ pure helper @*/ String contains(String prod){
+    	for(int i = 0; i < nb_assign; i++){
+    		if(assign[i][1].equals(prod)){
+    			return assign[i][0];
+    		}
+    	}
+    	return null;
     }
     
     public void skip(){
